@@ -7,8 +7,10 @@ import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.logout.LogoutHandler;
 
 // @Configuration annotation indicates that the class can be used by the Spring IoC container as a source of bean definitions
 @Configuration
@@ -19,16 +21,22 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfiguration {
 
     // JwtAuthenticationFilter bean injected by Spring
+
     private final JwtAuthenticationFilter jwtAuthFilter;
+
     // AuthenticationProvider bean injected by Spring
+
     private final AuthenticationProvider authenticationProvider;
 
+    private final LogoutHandler logoutHandler;
+
     // @Bean annotation indicates that a method produces a bean to be managed by the Spring container
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         // Start configuring HttpSecurity
         http
-                // Disabling CSRF (Cross Site Request Forgery)
+                // Disabling CSRF (Cross Site REquest Forgery)
                 .csrf()
                 .disable()
                 // Allowing authorization for HTTP requests
@@ -42,17 +50,23 @@ public class SecurityConfiguration {
                 .authenticated()
                 .and()
                 // Configuring session management
-                .sessionManagement()
+                .sessionManagemenet()
                 // Defining session creation policy as stateless
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
-                // Setting the AuthenticationProvider
                 .authenticationProvider(authenticationProvider)
                 // Adding JwtAuthenticationFilter before UsernamePasswordAuthenticationFilter
-                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+                .logout()
+                .logoutUrl("/api/v1/auth/logout")
+                .addLogoutHandler(logoutHandler)
+                .logoutSuccessHandler(((request, response, authentication) ->
+                        SecurityContextHolder.clearContext())
+                );
 
         // Building the HttpSecurity and returning it
         return http.build();
+
     }
 }
 
