@@ -20,11 +20,7 @@ import org.springframework.security.web.authentication.logout.LogoutHandler;
 @RequiredArgsConstructor
 public class SecurityConfiguration {
 
-    // JwtAuthenticationFilter bean injected by Spring
-
     private final JwtAuthenticationFilter jwtAuthFilter;
-
-    // AuthenticationProvider bean injected by Spring
 
     private final AuthenticationProvider authenticationProvider;
 
@@ -50,7 +46,7 @@ public class SecurityConfiguration {
                 .authenticated()
                 .and()
                 // Configuring session management
-                .sessionManagemenet()
+                .sessionManagement()
                 // Defining session creation policy as stateless
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
